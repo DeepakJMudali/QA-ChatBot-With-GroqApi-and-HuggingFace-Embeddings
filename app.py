@@ -14,17 +14,49 @@ from langchain_community.document_loaders import PyPDFDirectoryLoader
 # Load ENV variables
 load_dotenv()
 
-st.title("RAG Document Q&A with GROQ + HuggingFace Embeddings")
+# ----------------------------
+# PAGE CONFIG & CUSTOM CSS
+# ----------------------------
+st.set_page_config(page_title="RAG Chatbot", layout="centered")
+
+st.markdown("""
+<style>
+.input-card {
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+}
+.answer-box {
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #eaeaea;
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.05);
+}
+.center-title {
+    text-align: center;
+    font-size: 34px;
+    font-weight: 700;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ----------------------------
+# TITLE
+# ----------------------------
+st.markdown('<div class="center-title">🤖 RAG Document Q&A with GROQ</div>', unsafe_allow_html=True)
+
 
 # ----------------------------------------------------
-# CACHED RESOURCES (Heavy operations cached ONCE)
+# CACHED RESOURCES
 # ----------------------------------------------------
 
 @st.cache_resource
 def load_embeddings():
-    return HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-mpnet-base-v2"
-    )
+    return HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
 
 @st.cache_resource
@@ -35,11 +67,8 @@ def load_documents():
 
 
 @st.cache_resource
-def split_documents(_documents):  # underscore to avoid hashing error
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
-    )
+def split_documents(_documents):
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     return splitter.split_documents(_documents)
 
 
@@ -49,7 +78,6 @@ def load_vector_store():
     documents = load_documents()
     chunks = split_documents(documents)
 
-    # FAISS works in RAM & is Cloud-friendly
     return FAISS.from_documents(chunks, embeddings)
 
 
@@ -58,15 +86,13 @@ def load_llm():
     return ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
         model_name="llama-3.3-70b-versatile",
-        temperature=0,
-        cache=False
+        temperature=0
     )
 
 
 # ----------------------------------------------------
-# RAG LLM + Prompt + Retrieval Chain
+# RAG Chain
 # ----------------------------------------------------
-
 prompt = ChatPromptTemplate.from_template("""
 You are a helpful and accurate AI assistant.
 
@@ -79,7 +105,6 @@ Question: {input}
 Answer:
 """)
 
-embeddings = load_embeddings()
 vector_store = load_vector_store()
 retriever = vector_store.as_retriever(search_kwargs={"k": 5})
 llm = load_llm()
@@ -94,13 +119,22 @@ rag_chain = (
 )
 
 # ----------------------------------------------------
-# UI — Ask Question
+# INPUT UI
 # ----------------------------------------------------
+st.markdown('<div class="input-card">', unsafe_allow_html=True)
+question = st.text_input("Ask any question from the research papers:")
+submit = st.button("Submit", type="primary")
+st.markdown('</div>', unsafe_allow_html=True)
 
-question = st.text_input("Ask any question:")
 
-if st.button("Submit") and question:
+# ----------------------------------------------------
+# ANSWER OUTPUT
+# ----------------------------------------------------
+if submit and question:
     with st.spinner("🔍 Retrieving answer..."):
         response = rag_chain.invoke(question)
+
+    st.markdown('<div class="answer-box">', unsafe_allow_html=True)
     st.write("### ✅ Answer")
     st.write(response.content)
+    st.markdown('</div>', unsafe_allow_html=True)
