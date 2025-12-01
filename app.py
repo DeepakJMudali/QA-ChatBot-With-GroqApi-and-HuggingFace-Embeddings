@@ -8,14 +8,13 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 
 # Load ENV variables
 load_dotenv()
 
 st.title("RAG Document Q&A with GROQ + HuggingFace Embeddings")
-
 
 # ----------------------------------------------------
 # CACHED RESOURCES (Heavy operations cached ONCE)
@@ -46,35 +45,18 @@ def split_documents(_documents):  # underscore to avoid hashing error
 
 @st.cache_resource
 def load_vector_store():
-    """Loads existing Chroma DB if present, otherwise builds it ONCE."""
     embeddings = load_embeddings()
-
-    # If already created → load instantly
-    if os.path.exists("chroma_db"):
-        return Chroma(
-            persist_directory="chroma_db",
-            embedding_function=embeddings
-        )
-
-    # Else → build once
-    st.write("📚 Building vector store for the first time…")
     documents = load_documents()
     chunks = split_documents(documents)
 
-    vector_store = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        persist_directory="chroma_db"
-    )
-    return vector_store
+    # FAISS works in RAM & is Cloud-friendly
+    return FAISS.from_documents(chunks, embeddings)
 
 
 @st.cache_resource
 def load_llm():
-    groq_api_key = os.getenv("GROQ_API_KEY")
-
     return ChatGroq(
-        groq_api_key=groq_api_key,
+        groq_api_key=os.getenv("GROQ_API_KEY"),
         model_name="llama-3.3-70b-versatile",
         temperature=0,
         cache=False
@@ -110,7 +92,6 @@ rag_chain = (
     | prompt
     | llm
 )
-
 
 # ----------------------------------------------------
 # UI — Ask Question
