@@ -1,0 +1,51 @@
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain-groq
+ipykernel
+python-dotenv
+pypdf
+beautifulSoup4
+arxiv
+pymupdf
+numpy
+pandas
+wikipedia
+langchain-text-splitters
+langchain-openai 
+chromadb
+sentence-transformers
+langchain_huggingface
+faiss-cpu
+langchain_chroma
+huggingface_hub
+streamlit
+duckduckgo-search 
+langserve
+
+
+
+# streamlit
+# langchain==0.3.0
+# langchain-core==0.3.0
+# langchain-community==0.3.0
+# langchain-openai
+# langchain-groq
+
+# faiss-cpu
+# pypdf
+# python-dotenv
+# beautifulsoup4
+# arxiv
+# numpy
+# pandas
+# wikipedia
+# duckduckgo-search
+# sentence-transformers
+# huggingface_hub
+# langchain-text-splitters
+# langchain_huggingface
+
+# chromadb
+# langchain-chroma
