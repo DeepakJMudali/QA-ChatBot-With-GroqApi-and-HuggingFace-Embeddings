@@ -26,26 +26,4 @@ langserve
 
 
 
-# streamlit
-# langchain==0.3.0
-# langchain-core==0.3.0
-# langchain-community==0.3.0
-# langchain-openai
-# langchain-groq
 
-# faiss-cpu
-# pypdf
-# python-dotenv
-# beautifulsoup4
-# arxiv
-# numpy
-# pandas
-# wikipedia
-# duckduckgo-search
-# sentence-transformers
-# huggingface_hub
-# langchain-text-splitters
-# langchain_huggingface
-
-# chromadb
-# langchain-chroma
