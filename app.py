@@ -23,7 +23,6 @@ load_dotenv()
 # ----------------------------
 # PAGE CONFIG + SIMPLE ELEGANT UI
 # ----------------------------
-st.set_page_config(page_title="RAG Chatbot", layout="centered")
 
 st.markdown("""
 <style>
