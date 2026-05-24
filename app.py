@@ -85,7 +85,25 @@ input[type="text"] {
 """, unsafe_allow_html=True)
 
 # ----------------------------
+# HEADER WITH LOGO
+# ----------------------------
+col1, col2 = st.columns([1, 8])
 
+with col1:
+    st.image("logo.png", width=70)
+
+with col2:
+    st.markdown("""
+        <h1 style="
+            color:#dee2e6;
+            padding-top:10px;
+            font-size:42px;
+            font-weight:800;
+            margin-bottom:0;
+        ">
+        RAG Document Q&A with GROQ
+        </h1>
+    """, unsafe_allow_html=True)
 
 # ----------------------------
 # CACHED RESOURCES
