@@ -84,7 +84,7 @@ input[type="text"] {
 # ----------------------------
 st.set_page_config(
     page_title="RAG Chatbot",
-    page_icon="🤖"
+    page_icon="logo.png"
 )
 st.title("RAG Document Q&A with GROQ")
 
