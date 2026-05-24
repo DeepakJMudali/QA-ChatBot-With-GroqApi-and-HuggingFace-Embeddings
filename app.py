@@ -89,7 +89,9 @@ st.markdown('<div class="center-title">🤖 RAG Document Q&A with GROQ</div>', u
 # ----------------------------
 @st.cache_resource
 def load_embeddings():
-    return HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+    return HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
 @st.cache_resource
 def load_documents():
