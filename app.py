@@ -82,7 +82,7 @@ input[type="text"] {
 # ----------------------------
 # TITLE
 # ----------------------------
-st.markdown('<div class="center-title">🤖 RAG Document Q&A with GROQ</div>', unsafe_allow_html=True)
+st.title("🤖 RAG Document Q&A with GROQ")
 
 # ----------------------------
 # CACHED RESOURCES
