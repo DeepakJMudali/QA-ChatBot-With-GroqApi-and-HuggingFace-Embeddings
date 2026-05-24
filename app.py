@@ -82,7 +82,11 @@ input[type="text"] {
 # ----------------------------
 # TITLE
 # ----------------------------
-st.title("🤖 RAG Document Q&A with GROQ")
+st.set_page_config(
+    page_title="RAG Chatbot",
+    page_icon="🤖"
+)
+st.title("RAG Document Q&A with GROQ")
 
 # ----------------------------
 # CACHED RESOURCES
