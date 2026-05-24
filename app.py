@@ -1,6 +1,12 @@
 import streamlit as st
 import os
 
+st.set_page_config(
+    page_title="RAG Chatbot",
+    page_icon="logo.png",
+    layout="centered"
+)
+
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -80,13 +86,7 @@ input[type="text"] {
 """, unsafe_allow_html=True)
 
 # ----------------------------
-# TITLE
-# ----------------------------
-st.set_page_config(
-    page_title="RAG Chatbot",
-    page_icon="logo.png"
-)
-st.title("RAG Document Q&A with GROQ")
+
 
 # ----------------------------
 # CACHED RESOURCES
