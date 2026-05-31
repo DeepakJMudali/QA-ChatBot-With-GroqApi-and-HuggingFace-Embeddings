@@ -146,21 +146,21 @@ def load_llm():
 prompt = ChatPromptTemplate.from_template("""
 You are a friendly and helpful AI assistant.
 
-Use the information from the following context to answer the user's question.
-If the context contains useful information, prioritize it.
-If not, answer using general knowledge but keep it accurate.
+Use the provided context if it is relevant to the user's question.
 
-Keep your answer:
-- Simple
-- Clear
-- Helpful
-- Human-like
+If the context is not relevant or does not contain the answer, answer directly using your own knowledge.
+
+Never mention:
+- whether context was provided
+- whether context contains the answer
+- phrases like "the context does not mention"
+- phrases like "based on the provided context"
 
 <context>
 {context}
 </context>
 
-User Question: {input}
+Question: {input}
 
 Answer:
 """)
