@@ -11,11 +11,15 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnableParallel
+from langchain_core.prompts import ChatPromptTemplate,MessagesPlaceholder
+from langchain_classic.chains import create_retrieval_chain
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -135,7 +139,7 @@ def load_vector_store():
 @st.cache_resource
 def load_llm():
     return ChatGroq(
-        groq_api_key=os.getenv("GROQ_API_KEY"),
+        groq_api_key=groq_api_key,
         model_name="openai/gpt-oss-20b",
         temperature=0
     )
@@ -143,7 +147,8 @@ def load_llm():
 # ----------------------------
 # RAG PIPELINE
 # ----------------------------
-prompt = ChatPromptTemplate.from_template("""
+prompt = ChatPromptTemplate.from_messages([
+    ("system","""
 You are a friendly and helpful AI assistant.
 
 Use the provided context if it is relevant to the user's question.
@@ -158,27 +163,33 @@ Never mention:
 
 <context>
 {context}
-</context>
-
-Question: {input}
-
-Answer:
-""")
+</context>"""),
+MessagesPlaceholder(variable_name="messages"),
+("human","{input}")
+])
 
 
 vector_store = load_vector_store()
-retriever = vector_store.as_retriever(search_kwargs={"k": 5})
+retriever = vector_store.as_retriever(search_type="similarity",search_kwargs={"k": 5})
 llm = load_llm()
 
-rag_chain = (
-    RunnableParallel({
-        "context": retriever,
-        "input": RunnablePassthrough()
-    })
-    | prompt
-    | llm
-)
+document_chain  = create_stuff_documents_chain(llm,prompt)
+rag_chain = create_retrieval_chain(retriever,document_chain)
 
+if "session_id" not in st.session_state:
+
+    st.session_state["session_id"] = str(uuid.uuid4())
+
+def get_chat_history(session_id)->BaseChatMessageHistory:
+    if session_id not in st.session_state:
+        st.session_state[session_id] =  ChatMessageHistory()
+    return st.session_state[session_id]
+
+message_with_history = RunnableWithMessageHistory(rag_chain, get_chat_history,input_messages_key="input",
+    history_messages_key="messages",output_messages_key="answer")
+
+session_id = st.session_state["session_id"]
+config ={"configurable":{"session_id":session_id}}
 # ----------------------------
 # INPUT UI
 # ----------------------------
@@ -193,9 +204,9 @@ st.markdown('</div>', unsafe_allow_html=True)
 # ----------------------------
 if submit and question:
     with st.spinner("🔍 Retrieving answer..."):
-        response = rag_chain.invoke(question)
+        response = message_with_history.invoke({"input":question},config)
 
 
     st.write("### 📘 Answer")
-    st.write(response.content)
+    st.write(response["answer"])
     st.markdown('</div>', unsafe_allow_html=True)
