@@ -19,7 +19,7 @@ from langchain_community.document_loaders import PyPDFDirectoryLoader
 
 # Load environment variables
 load_dotenv()
-
+groq_api_key=os.getenv("GROQ_API_KEY")
 # ----------------------------
 # PAGE CONFIG + SIMPLE ELEGANT UI
 # ----------------------------
